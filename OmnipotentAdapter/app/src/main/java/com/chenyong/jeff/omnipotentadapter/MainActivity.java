@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private void initView() {
         listView = (ListView) findViewById(R.id.id_listview);
         listView.setAdapter(new CommonAdapter<Bean>(MainActivity.this,mDatas,R.layout.list_item) {
+            final List<Integer> mPos = new ArrayList<>();
             @Override
             public void convert(final CommonViewHolder holder, final Bean bean) {
                 //下面是直接拿到item后赋值
@@ -36,9 +37,36 @@ public class MainActivity extends AppCompatActivity {
 //                ((TextView)(holder.getView(R.id.content_text))).setText(bean.getContent());
 
                 //下面是在CommonViewHolder给item控件再封装了一次
-                holder.setText(R.id.title_text, bean.getTitle());
-                holder.setText(R.id.content_text, bean.getContent());
+                holder.setText(R.id.title_text,bean.getTitle());
+                holder.setText(R.id.content_text,bean.getContent());
 
+                //下面是解决CheckBox错位的问题
+                //方法一：直接在Bean中定义一个属性纪录选中状态
+                //方法二：是把的当前状态保存在一个集合List里面
+                final CheckBox checkBox = holder.getView(R.id.cb);
+                //方1
+//                checkBox.setChecked(bean.isChecked());、
+
+                //方2
+                checkBox.setChecked(false);
+                if (mPos.contains(holder.getPosition())){
+                    checkBox.setChecked(true);
+                }
+
+                checkBox.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        //方1
+//                        bean.setChecked(checkBox.isChecked());
+
+                        //方2
+                        if (checkBox.isClickable()){
+                            mPos.add(holder.getPosition());
+                        }else {
+                            mPos.remove((Integer) holder.getPosition());
+                        }
+                    }
+                });
             }
         });
     }
